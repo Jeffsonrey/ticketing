@@ -1,0 +1,217 @@
+@startuml
+title Event Ticketing Platform - Strategic DDD + Tactical DDD + Domain Model
+
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+hide empty methods
+
+package "Ticketing BC\n<<Core / Orchestration>>" as TicketingBC {
+
+  package "Aggregate: TicketOrder" as TicketOrderAgg {
+    class TicketOrder <<Aggregate Root>> {
+      - orderId: TicketOrderId
+      - attendeeId: AttendeeId
+      - eventId: EventId
+      - paymentId: PaymentId
+      - status: OrderStatus
+      - createdAt: LocalDateTime
+      - totalAmount: Money
+    }
+
+    class OrderLine {
+      - orderLineId: String
+      - ticketType: TicketType
+      - quantity: int
+      - unitPrice: Money
+    }
+
+    class TicketOrderId <<Value Object>> {
+      - value: String
+    }
+
+    class Money <<Value Object>> {
+      - amount: decimal
+      - currency: String
+    }
+
+    class TicketType <<Value Object>> {
+      - name: String
+    }
+
+    class OrderStatus <<Value Object>> {
+      - value: String
+    }
+
+    TicketOrder *-- "1..*" OrderLine
+  }
+
+  note right of TicketOrder
+    {invariant}
+    Total quantity ordered > 0
+    TicketOrder can be CONFIRMED
+    only if attendee, event, and
+    payment are validated
+  end note
+
+  package "Aggregate: IssuedTicket" as IssuedTicketAgg {
+    class IssuedTicket <<Aggregate Root>> {
+      - ticketId: IssuedTicketId
+      - orderId: TicketOrderId
+      - attendeeId: AttendeeId
+      - eventId: EventId
+      - seatLabel: SeatLabel
+      - qrCode: String
+      - status: TicketStatus
+      - issuedAt: LocalDateTime
+    }
+
+    class IssuedTicketId <<Value Object>> {
+      - value: String
+    }
+
+    class SeatLabel <<Value Object>> {
+      - value: String
+    }
+
+    class TicketStatus <<Value Object>> {
+      - value: String
+    }
+  }
+
+  note right of IssuedTicket
+    {invariant}
+    IssuedTicket can only be created
+    from a CONFIRMED TicketOrder
+    Each IssuedTicket belongs to
+    exactly one TicketOrder
+  end note
+}
+
+package "Attendee BC\n<<Supporting>>" as AttendeeBC {
+
+  package "Aggregate: AttendeeProfile" as AttendeeAgg {
+    class AttendeeProfile <<Aggregate Root>> {
+      - attendeeId: AttendeeId
+      - fullName: String
+      - email: EmailAddress
+      - phoneNumber: PhoneNumber
+      - status: AttendeeStatus
+      - registeredAt: LocalDateTime
+    }
+
+    class AttendeeId <<Value Object>> {
+      - value: String
+    }
+
+    class EmailAddress <<Value Object>> {
+      - value: String
+    }
+
+    class PhoneNumber <<Value Object>> {
+      - value: String
+    }
+
+    class AttendeeStatus <<Value Object>> {
+      - value: String
+    }
+  }
+
+  note right of AttendeeProfile
+    {invariant}
+    Email address must be valid and unique
+    Only ACTIVE attendees may
+    purchase tickets
+  end note
+}
+
+package "Event BC\n<<Supporting>>" as EventBC {
+
+  package "Aggregate: EventListing" as EventAgg {
+    class EventListing <<Aggregate Root>> {
+      - eventId: EventId
+      - title: String
+      - description: String
+      - venue: Venue
+      - schedule: EventSchedule
+      - totalCapacity: int
+      - availableTickets: int
+      - status: EventStatus
+    }
+
+    class EventId <<Value Object>> {
+      - value: String
+    }
+
+    class Venue <<Value Object>> {
+      - name: String
+      - address: String
+      - city: String
+    }
+
+    class EventSchedule <<Value Object>> {
+      - startDateTime: LocalDateTime
+      - endDateTime: LocalDateTime
+    }
+
+    class EventStatus <<Value Object>> {
+      - value: String
+    }
+  }
+
+  note right of EventListing
+    {invariant}
+    AvailableTickets >= 0
+    End date/time must be after start date/time
+    Tickets cannot be sold for a CANCELLED event
+  end note
+}
+
+package "Payment BC\n<<Supporting>>" as PaymentBC {
+
+  package "Aggregate: PaymentTransaction" as PaymentAgg {
+    class PaymentTransaction <<Aggregate Root>> {
+      - paymentId: PaymentId
+      - orderReference: String
+      - amount: Money
+      - method: PaymentMethod
+      - status: PaymentStatus
+      - processedAt: LocalDateTime
+    }
+
+    class PaymentId <<Value Object>> {
+      - value: String
+    }
+
+    class PaymentMethod <<Value Object>> {
+      - value: String
+    }
+
+    class PaymentStatus <<Value Object>> {
+      - value: String
+    }
+  }
+
+  note right of PaymentTransaction
+    {invariant}
+    Payment amount must be > 0
+    Only AUTHORIZED or COMPLETED
+    payments may support ticket issuance
+  end note
+}
+
+' Inside-core relationship
+IssuedTicket --> TicketOrder : orderId
+
+' Cross-context ID references
+TicketOrder ..> AttendeeProfile : attendeeId
+TicketOrder ..> EventListing : eventId
+TicketOrder ..> PaymentTransaction : paymentId
+
+' Context communication
+TicketingBC ..> AttendeeBC : validate attendee
+TicketingBC ..> EventBC : check availability
+TicketingBC ..> PaymentBC : confirm payment
+@enduml
