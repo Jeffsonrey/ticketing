@@ -1,5 +1,15 @@
 DROP TABLE IF EXISTS events;
 
+
+CREATE TABLE ticket_inventory (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    inventory_identifier VARCHAR(255) NOT NULL UNIQUE,
+    event_id VARCHAR(255) NOT NULL,
+    ticket_type VARCHAR(255) NOT NULL,
+    total_tickets INT NOT NULL,
+    available_tickets INT NOT NULL
+);
+
 CREATE TABLE events (
                         id VARCHAR(255) PRIMARY KEY,
 
