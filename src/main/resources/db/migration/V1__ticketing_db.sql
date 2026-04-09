@@ -10,6 +10,15 @@ CREATE TABLE ticket_inventory (
     available_tickets INT NOT NULL
 );
 
+CREATE TABLE customers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_identifier VARCHAR(255) NOT NULL UNIQUE,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    email_address VARCHAR(255) NOT NULL UNIQUE,
+    phone_number VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE events (
                         id VARCHAR(255) PRIMARY KEY,
 

@@ -5,6 +5,8 @@ import com.champsoft.ticketing.modules.ticketInventory.application.exception.Tic
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.champsoft.ticketing.modules.customer.application.exception.CustomerNotFoundException;
+import com.champsoft.ticketing.modules.customer.application.exception.DuplicateCustomerEmailException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,5 +30,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse("Unexpected error occurred", 500));
+    }
+
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCustomerNotFound(CustomerNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(ex.getMessage(), 404));
+    }
+
+    @ExceptionHandler(DuplicateCustomerEmailException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateCustomerEmail(DuplicateCustomerEmailException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(ex.getMessage(), 409));
     }
 }
