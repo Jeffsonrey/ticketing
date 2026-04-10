@@ -1,0 +1,27 @@
+services:
+
+  ticketing-postgres:
+    image: postgres:18.3
+    container_name: ticketing-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: ticketing_db
+      POSTGRES_USER: ticketing
+      POSTGRES_PASSWORD: ticketing
+    volumes:
+      - ticketing_pg_data:/var/lib/postgresql
+
+  ticketing-app:
+    image: ticketing:1.0
+    container_name: ticketing-pg
+    depends_on:
+      - ticketing-postgres
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: pg
+      POSTGRES_HOST: ticketing-postgres
+
+volumes:
+  ticketing_pg_data:
