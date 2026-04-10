@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.champsoft.ticketing.modules.customer.application.exception.CustomerNotFoundException;
 import com.champsoft.ticketing.modules.customer.application.exception.DuplicateCustomerEmailException;
-import com.champsoft.ticketing.modules.event.application.exception.EventNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -19,26 +18,6 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(ex.getMessage(), 404));
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(ex.getMessage(), 400));
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(ex.getMessage(), 400));
-    }
-
-    @ExceptionHandler(EventNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEventNotFound(EventNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(ex.getMessage(), 404));
-    }
-
-
-
     // 400
     @ExceptionHandler(InvalidTicketInventoryException.class)
     public ResponseEntity<ErrorResponse> handleInvalid(InvalidTicketInventoryException ex) {
@@ -49,10 +28,8 @@ public class GlobalExceptionHandler {
     // fallback
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        ex.printStackTrace();
-
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(ex.getClass().getSimpleName() + ": " + ex.getMessage(), 500));
+                .body(new ErrorResponse("Unexpected error occurred", 500));
     }
 
     @ExceptionHandler(CustomerNotFoundException.class)
