@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.champsoft.ticketing.modules.customer.application.exception.CustomerNotFoundException;
 import com.champsoft.ticketing.modules.customer.application.exception.DuplicateCustomerEmailException;
+import com.champsoft.ticketing.modules.ticketOrderManagement.application.exception.InvalidTicketOrderException;
+import com.champsoft.ticketing.modules.ticketOrderManagement.application.exception.TicketOrderNotFoundException;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -42,5 +45,17 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDuplicateCustomerEmail(DuplicateCustomerEmailException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(ex.getMessage(), 409));
+    }
+
+    @ExceptionHandler(TicketOrderNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleTicketOrderNotFound(TicketOrderNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(ex.getMessage(), 404));
+    }
+
+    @ExceptionHandler(InvalidTicketOrderException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidTicketOrder(InvalidTicketOrderException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage(), 400));
     }
 }

@@ -19,6 +19,17 @@ CREATE TABLE customers (
     phone_number VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE ticket_orders (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_identifier VARCHAR(255) NOT NULL UNIQUE,
+    customer_id BIGINT NOT NULL,
+    event_id VARCHAR(255) NOT NULL,
+    ticket_type VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    status VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE events (
                         id VARCHAR(255) PRIMARY KEY,
 
