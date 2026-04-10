@@ -13,5 +13,7 @@ public interface TicketInventoryRepositoryPort {
 
     TicketInventory save(TicketInventory ticketInventory);
 
+    Optional<TicketInventory> findByEventIdAndTicketType(String eventId, String ticketType);
+
     void delete(TicketInventory ticketInventory);
 }

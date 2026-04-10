@@ -29,6 +29,21 @@ public class JpaEventRepositoryAdapter implements EventRepositoryPort {
     }
 
     @Override
+    public Optional<EventListing> findDuplicate(
+            String title,
+            String venueName,
+            java.time.LocalDateTime startDateTime,
+            java.time.LocalDateTime endDateTime
+    ) {
+        return jpa.findByTitleAndVenue_NameAndSchedule_StartDateTimeAndSchedule_EndDateTime(
+                title,
+                venueName,
+                startDateTime,
+                endDateTime
+        ).map(this::toDomain);
+    }
+
+    @Override
     public Optional<EventListing> findById(EventId id) {
         return jpa.findById(id.value()).map(this::toDomain);
     }

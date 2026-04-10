@@ -30,6 +30,7 @@ public class TicketOrderService {
     }
 
     public TicketOrder createOrder(TicketOrderRequestModel requestModel) {
+
         validateOrder(requestModel);
 
         TicketOrder ticketOrder = new TicketOrder(

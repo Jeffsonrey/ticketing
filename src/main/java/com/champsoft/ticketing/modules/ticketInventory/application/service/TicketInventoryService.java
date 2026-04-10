@@ -1,6 +1,7 @@
 package com.champsoft.ticketing.modules.ticketInventory.application.service;
 
 import com.champsoft.ticketing.modules.ticketInventory.api.dto.TicketInventoryRequestModel;
+import com.champsoft.ticketing.modules.ticketInventory.application.exception.DuplicateTicketInventoryException;
 import com.champsoft.ticketing.modules.ticketInventory.application.exception.InvalidTicketInventoryException;
 import com.champsoft.ticketing.modules.ticketInventory.application.exception.TicketInventoryNotFoundException;
 import com.champsoft.ticketing.modules.ticketInventory.application.port.out.TicketInventoryRepositoryPort;
@@ -31,6 +32,17 @@ public class TicketInventoryService {
 
     public TicketInventory createInventory(TicketInventoryRequestModel requestModel) {
         validateInventory(requestModel);
+
+        ticketInventoryRepositoryPort
+                .findByEventIdAndTicketType(
+                        requestModel.getEventId(),
+                        requestModel.getTicketType()
+                )
+                .ifPresent(existing -> {
+                    throw new DuplicateTicketInventoryException(
+                            "A ticket inventory for this event and ticket type already exists."
+                    );
+                });
 
         TicketInventory ticketInventory = new TicketInventory(
                 requestModel.getEventId(),
